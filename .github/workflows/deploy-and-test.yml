@@ -62,7 +62,7 @@ jobs:
         ports:
           - 4444:4444
         options: >-
-          options: --shm-size=2gb
+          --shm-size=2gb
 
     env:
       BROWSER: chrome
