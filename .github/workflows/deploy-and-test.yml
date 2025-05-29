@@ -1,36 +1,90 @@
-# This is a basic workflow to help you get started with Actions
+name: Deploy and test
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [main]
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # Solo se usa localmente
+      - name: Install Maven
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          sudo apt-get install -y maven
+
+      - name: Build all SPI modules
+        run: |
+          for POM in $(find KeycloakProviders -name pom.xml); do
+            DIR=$(dirname "$POM")
+            echo "Building $DIR..."
+            mvn -f "$POM" clean package -DskipTests
+          done
+
+      - name: Deploy all SPI jars to Keycloak nodes
+        run: |
+          for JAR in $(find KeycloakProviders -type f -path "*/target/*.jar"); do
+            echo "Jar ready to deploy $JAR"
+            for HOST in ${{ secrets.KEYCLOAK_NODES }}; do
+              echo "Deploying $JAR to $HOST..."
+              
+            done
+          done
+
+  postman-test-runner:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: matt-ball/newman-action@master
+        with:
+          collection: ./Testing/Backend/UserPasswordAuth/BasicKeycloakTest.postman_collection.json
+          environment: ./Testing/Backend/UserPasswordAuth/BasicTestEnvironment.postman_environment.json
+          insecure: true
+
+  selenium-js-test:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+        options: >-
+          options: --shm-size=2gb
+
+    env:
+      BROWSER: chrome
+      SELENIUM: localhost
+      SERVER_URL: "https://carrefour.rakkau.com:8443"
+      REALM: "demo"
+      CLIENT_ID: "demo"
+      TEST_USERNAME: "demouser"
+      TEST_PASSWORD: "inrweo12"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./Testing/Frontend/SeleniumJs
+
+      - name: Run Selenium JS tests
+        run: npm test
+        working-directory: ./Testing/Frontend/SeleniumJs

@@ -1,0 +1,87 @@
+{
+	"info": {
+		"_postman_id": "e4917e2a-0509-4fbc-b6cc-b0e596a35afa",
+		"name": "BasicKeycloakTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37659635",
+		"_collection_link": "https://rakkau-0702.postman.co/workspace/Rakkau-Workspace~ff4d5988-096c-4f90-87b0-c71bbbd5834f/collection/37659635-e4917e2a-0509-4fbc-b6cc-b0e596a35afa?action=share&source=collection_link&creator=37659635"
+	},
+	"item": [
+		{
+			"name": "getTokensFromPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var parsedData = pm.response.json()\r",
+							"pm.collectionVariables.set(\"refreshToken\", parsedData.refresh_token)\r",
+							"pm.collectionVariables.set(\"accessToken\", parsedData.access_token)\r",
+							"pm.test(\"Status is 200 OK\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"pm.test(\"Access token is present\", function () {\r",
+							"    pm.expect(parsedData).to.have.property(\"access_token\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/realms/{{realm}}/protocol/openid-connect/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"realms",
+						"{{realm}}",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "accessToken",
+			"value": ""
+		}
+	]
+}
