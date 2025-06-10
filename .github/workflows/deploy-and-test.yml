@@ -51,6 +51,15 @@ jobs:
               scp -o StrictHostKeyChecking=no "$JAR" "root@$HOST:/home/carrefour/github/carrefour-mp/infraDev/keycloakProviders/"
             done
           done
+          
+          # Optional: Restart Keycloak service
+          # echo "Restarting Keycloak service on nodes..."
+          # for HOST in ${{ secrets.KEYCLOAK_NODES }}; do
+          #   echo "Restarting Keycloak on $HOST..."
+          #   # Ejecuta el comando docker compose restart keycloak vía SSH
+          #   # Asegúrate de que el path 'cd /home/carrefour/github/carrefour-mp/infraDev/' es donde está tu docker-compose.yml
+          #   ssh -o StrictHostKeyChecking=no "root@$HOST" "cd /home/carrefour/github/carrefour-mp/infraDev/ && docker compose restart keycloak"
+          # done
 
   postman-test-runner:
     needs: build-and-deploy
