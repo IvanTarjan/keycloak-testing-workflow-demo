@@ -34,11 +34,21 @@ jobs:
 
       - name: Deploy all SPI jars to Keycloak nodes
         run: |
+          # Create a temporary directory for SSH key
+          mkdir -p ~/.ssh
+          # Add the private key from GitHub Secrets
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Start ssh-agent and add the key with its passphrase
+          eval "$(ssh-agent -s)"
+          ssh-add -q ~/.ssh/id_rsa <<< "${{ secrets.SSH_PASSPHRASE }}"
+          
           for JAR in $(find KeycloakProviders -type f -path "*/target/*.jar"); do
             echo "Jar ready to deploy $JAR"
             for HOST in ${{ secrets.KEYCLOAK_NODES }}; do
               echo "Deploying $JAR to $HOST..."
-              
+              scp -o StrictHostKeyChecking=no "$JAR" "$HOST:/home/carrefour/github/carrefour-mp/infraDev/keycloakProviders/"
             done
           done
 

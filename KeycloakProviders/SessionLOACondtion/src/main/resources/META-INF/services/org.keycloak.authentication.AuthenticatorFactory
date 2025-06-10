@@ -1,0 +1,2 @@
+org.keycloak.authenticator.SessionLOASetterAuthFactory
+org.keycloak.authenticator.ConditionalSessionLOAAuthFactory
