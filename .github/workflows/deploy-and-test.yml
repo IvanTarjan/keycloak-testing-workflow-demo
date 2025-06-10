@@ -48,7 +48,7 @@ jobs:
             echo "Jar ready to deploy $JAR"
             for HOST in ${{ secrets.KEYCLOAK_NODES }}; do
               echo "Deploying $JAR to $HOST..."
-              scp -o StrictHostKeyChecking=no "$JAR" "$HOST:/home/carrefour/github/carrefour-mp/infraDev/keycloakProviders/"
+              scp -o StrictHostKeyChecking=no "$JAR" "root@$HOST:/home/carrefour/github/carrefour-mp/infraDev/keycloakProviders/"
             done
           done
 
