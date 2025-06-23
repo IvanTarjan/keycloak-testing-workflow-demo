@@ -70,6 +70,7 @@ jobs:
         with:
           collection: ./Testing/Backend/UserPasswordAuth/BasicKeycloakTest.postman_collection.json
           environment: ./Testing/Backend/UserPasswordAuth/BasicTestEnvironment.postman_environment.json
+          envVar: '[{ "key": "url", "value": "${{ secrets.KEYCLOAK_TEST_HOST }}" }, { "key": "realm", "value": "${{ secrets.KEYCLOAK_TEST_REALM }}" }, { "key": "username", "value": "${{ secrets.KEYCLOAK_TEST_USERNAME }}" }, { "key": "password", "value": "${{ secrets.KEYCLOAK_TEST_PASSWORD }}" }, { "key": "clientId", "value": "${{ secrets.KEYCLOAK_TEST_CLIENT }}" }]'
           insecure: true
 
   selenium-js-test:
