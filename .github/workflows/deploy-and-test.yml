@@ -86,11 +86,11 @@ jobs:
     env:
       BROWSER: chrome
       SELENIUM: localhost
-      SERVER_URL: "https://carrefour.rakkau.com:8443"
-      REALM: "demo"
-      CLIENT_ID: "demo"
-      TEST_USERNAME: "demouser"
-      TEST_PASSWORD: "inrweo12"
+      SERVER_URL: ${{ secrets.KEYCLOAK_TEST_HOST }}
+      REALM: ${{ secrets.KEYCLOAK_TEST_REALM }}
+      CLIENT_ID: ${{ secrets.KEYCLOAK_TEST_CLIENT }}
+      TEST_USERNAME: ${{ secrets.KEYCLOAK_TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.KEYCLOAK_TEST_PASSWORD }}
 
     steps:
       - name: Checkout repository
